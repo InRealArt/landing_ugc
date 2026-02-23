@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { unstable_noStore as noStore } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import ArtistsCarousel from "./ArtistsCarousel";
 
@@ -55,6 +56,7 @@ const FALLBACK_ARTISTS = [
 ];
 
 async function getTopArtists() {
+  noStore();
   try {
     const rows = await prisma.landingUgcTopArtists.findMany({
       orderBy: { order: "asc" },
