@@ -1,38 +1,108 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
+
 export default function CTASection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
+  const labelRef = useRef<HTMLSpanElement>(null);
+  const headlineRef = useRef<HTMLHeadingElement>(null);
+  const subtextRef = useRef<HTMLParagraphElement>(null);
+  const btnRef = useRef<HTMLAnchorElement>(null);
+  const trustRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 80%",
+          toggleActions: "play none none none",
+        },
+        defaults: { ease: "power3.out" },
+      });
+
+      // Glow pulse in
+      tl.fromTo(
+        glowRef.current,
+        { opacity: 0, scale: 0.5 },
+        { opacity: 1, scale: 1, duration: 1.2, ease: "power2.out" }
+      )
+        .fromTo(labelRef.current, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5 }, "-=0.8")
+        .fromTo(
+          headlineRef.current,
+          { opacity: 0, y: 40, scale: 0.97 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.75 },
+          "-=0.4"
+        )
+        .fromTo(subtextRef.current, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.55 }, "-=0.45")
+        // Button — scale pop
+        .fromTo(
+          btnRef.current,
+          { opacity: 0, scale: 0.85, y: 14 },
+          { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: "back.out(1.6)" },
+          "-=0.35"
+        )
+        // Trust bullets stagger
+        .fromTo(
+          trustRef.current?.querySelectorAll(".trust-item") ?? [],
+          { opacity: 0, y: 12 },
+          { opacity: 1, y: 0, duration: 0.4, stagger: 0.1 },
+          "-=0.25"
+        );
+
+      // Continuous glow breathe
+      gsap.to(glowRef.current, {
+        scale: 1.15, opacity: 0.8, duration: 3, ease: "sine.inOut",
+        yoyo: true, repeat: -1,
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="py-24 px-6 bg-[#131313] relative overflow-hidden" id="contact">
+    <section ref={sectionRef} className="py-24 px-6 bg-[#131313] relative overflow-hidden" id="contact">
       {/* Purple glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] rounded-full bg-[#6052ff]/6 blur-[100px]" />
+        <div
+          ref={glowRef}
+          style={{ opacity: 0 }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] rounded-full bg-[#6052ff]/6 blur-[100px]"
+        />
       </div>
 
       <div className="max-w-3xl mx-auto text-center relative z-10">
         <div className="section-divider mb-16" />
 
         <div className="flex flex-col items-center gap-8">
-          <span className="font-display text-[11px] text-[#9ca3af] uppercase tracking-[0.2em] font-500">
+          <span ref={labelRef} style={{ opacity: 0 }} className="font-display text-[11px] text-[#9ca3af] uppercase tracking-[0.2em] font-500">
             Prêt à démarrer ?
           </span>
 
-          <h2 className="font-display font-900 text-4xl sm:text-5xl lg:text-6xl text-white leading-[1.05] tracking-tight">
+          <h2 ref={headlineRef} style={{ opacity: 0 }} className="font-display font-900 text-4xl sm:text-5xl lg:text-6xl text-white leading-[1.05] tracking-tight">
             Lancez votre campagne{" "}
             <span className="text-[#6052ff]">UGC artistique</span>
             {" "}dès aujourd&apos;hui.
           </h2>
 
-          <p className="font-body text-[#9ca3af] text-lg max-w-xl leading-relaxed">
+          <p ref={subtextRef} style={{ opacity: 0 }} className="font-body text-[#9ca3af] text-lg max-w-xl leading-relaxed">
             Rejoignez les marques qui font confiance à InRealArt pour
             créer du contenu authentique qui convertit.
           </p>
 
-          <a href="mailto:contact@inrealart.com" className="btn-primary btn-primary-pulse text-sm px-8 py-4">
+          <a ref={btnRef} style={{ opacity: 0 }} href="mailto:contact@inrealart.com" className="btn-primary btn-primary-pulse text-sm px-8 py-4">
             Faire ma demande →
           </a>
 
           {/* Trust bullets */}
-          <div className="flex flex-wrap items-center justify-center gap-6 mt-2">
+          <div ref={trustRef} className="flex flex-wrap items-center justify-center gap-6 mt-2">
             {["0 € de frais mensuels", "Artistes vérifiés", "Livraison < 1 semaine"].map((item) => (
-              <div key={item} className="flex items-center gap-2">
+              <div key={item} className="trust-item flex items-center gap-2" style={{ opacity: 0 }}>
                 <svg className="w-4 h-4 text-[#6052ff]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>

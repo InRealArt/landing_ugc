@@ -1,3 +1,11 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
+
 const steps = [
   {
     number: "01",
@@ -26,15 +34,97 @@ const steps = [
 ];
 
 export default function HowItWorks() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const stepsRef = useRef<HTMLDivElement>(null);
+  const lineRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Header reveal
+      gsap.fromTo(
+        headerRef.current,
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1, y: 0, duration: 0.7, ease: "power3.out",
+          scrollTrigger: {
+            trigger: headerRef.current,
+            start: "top 85%",
+            toggleActions: "play none none none",
+          },
+        }
+      );
+
+      // Connecting line draw
+      if (lineRef.current) {
+        gsap.fromTo(
+          lineRef.current,
+          { scaleY: 0, transformOrigin: "top center" },
+          {
+            scaleY: 1, duration: 1.4, ease: "power2.inOut",
+            scrollTrigger: {
+              trigger: stepsRef.current,
+              start: "top 80%",
+              toggleActions: "play none none none",
+            },
+          }
+        );
+      }
+
+      // Steps stagger reveal
+      const stepItems = stepsRef.current?.querySelectorAll(".step-item");
+      if (stepItems) {
+        gsap.fromTo(
+          stepItems,
+          { opacity: 0, x: -40 },
+          {
+            opacity: 1, x: 0,
+            duration: 0.7, ease: "power3.out",
+            stagger: 0.2,
+            scrollTrigger: {
+              trigger: stepsRef.current,
+              start: "top 80%",
+              toggleActions: "play none none none",
+            },
+          }
+        );
+      }
+
+      // Number circles — scale pop
+      const circles = stepsRef.current?.querySelectorAll(".step-circle");
+      if (circles) {
+        gsap.fromTo(
+          circles,
+          { scale: 0.5, opacity: 0 },
+          {
+            scale: 1, opacity: 1,
+            duration: 0.5, ease: "back.out(1.8)",
+            stagger: 0.2,
+            scrollTrigger: {
+              trigger: stepsRef.current,
+              start: "top 80%",
+              toggleActions: "play none none none",
+            },
+          }
+        );
+      }
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="py-20 px-6 bg-[#131313] relative" id="comment">
+    <section ref={sectionRef} className="py-20 px-6 bg-[#131313] relative" id="comment">
       {/* Vertical line decoration */}
-      <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#6052ff]/10 to-transparent pointer-events-none hidden lg:block" />
+      <div
+        ref={lineRef}
+        className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#6052ff]/10 to-transparent pointer-events-none hidden lg:block"
+      />
 
       <div className="max-w-4xl mx-auto">
 
         {/* Header */}
-        <div className="mb-16">
+        <div ref={headerRef} style={{ opacity: 0 }} className="mb-16">
           <span className="font-display text-[11px] text-[#9ca3af] uppercase tracking-[0.2em] font-500">
             Process
           </span>
@@ -44,14 +134,15 @@ export default function HowItWorks() {
         </div>
 
         {/* Steps */}
-        <div className="flex flex-col">
+        <div ref={stepsRef} className="flex flex-col">
           {steps.map((step, i) => (
-            <div key={i} className="relative flex gap-8 group">
+            <div key={i} className="step-item relative flex gap-8 group" style={{ opacity: 0 }}>
 
               {/* Step number + connecting line */}
               <div className="flex flex-col items-center flex-shrink-0">
                 <div
-                  className="w-14 h-14 rounded-xl flex items-center justify-center border border-[#6052ff]/30 bg-[#6052ff]/10 transition-all duration-300 group-hover:border-[#6052ff]/60 group-hover:bg-[#6052ff]/15"
+                  className="step-circle w-14 h-14 rounded-xl flex items-center justify-center border border-[#6052ff]/30 bg-[#6052ff]/10 transition-all duration-300 group-hover:border-[#6052ff]/60 group-hover:bg-[#6052ff]/15"
+                  style={{ opacity: 0 }}
                 >
                   <span className="font-display font-900 text-xl text-[#6052ff]">
                     {step.number}
