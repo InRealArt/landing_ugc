@@ -1,13 +1,13 @@
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
+import ArtistsCarousel from "./ArtistsCarousel";
 
 type TopArtistRow = {
   order: number;
   landingArtist: {
     imageUrl: string;
-    intro: string | null;
     artworkStyle: string | null;
-    description: string | null;
+    mediumTags: string[];
     artist: {
       pseudo: string | null;
       name: string | null;
@@ -43,69 +43,15 @@ const BG_GRADS = [
 
 // Fallback static data — used if DB is empty or unavailable
 const FALLBACK_ARTISTS = [
-  {
-    name: "Leloluce",
-    description: "Artiste internationale — luxe, mode, matériel artistique",
-    accentColor: ACCENT_COLORS[0],
-    bgGrad: BG_GRADS[0],
-    imageUrl: null,
-  },
-  {
-    name: "Ekaterina Aristova",
-    description: "Artiste internationale — mannequin, luxe, mode, matériel artistique",
-    accentColor: ACCENT_COLORS[1],
-    bgGrad: BG_GRADS[1],
-    imageUrl: null,
-  },
-  {
-    name: "Artialy",
-    description: "Artiste émergeante — Mode, produits high-tech, pop culture",
-    accentColor: ACCENT_COLORS[2],
-    bgGrad: BG_GRADS[2],
-    imageUrl: null,
-  },
-  {
-    name: "Rom Av Jc",
-    description: "Artiste française émergeante — Luxe, street universe, matériel artistique",
-    accentColor: ACCENT_COLORS[3],
-    bgGrad: BG_GRADS[3],
-    imageUrl: null,
-  },
-  {
-    name: "Ninu",
-    description: "Artiste française internationale — Luxe, horlogerie, matériel artistique",
-    accentColor: ACCENT_COLORS[4],
-    bgGrad: BG_GRADS[4],
-    imageUrl: null,
-  },
-  {
-    name: "Aurel Street",
-    description: "Artiste français international — Luxe, horlogerie, matériel artistique",
-    accentColor: ACCENT_COLORS[5],
-    bgGrad: BG_GRADS[5],
-    imageUrl: null,
-  },
-  {
-    name: "Marine Tassou",
-    description: "Artiste française émergeante — Luxe, horlogerie, matériel artistique",
-    accentColor: ACCENT_COLORS[6],
-    bgGrad: BG_GRADS[6],
-    imageUrl: null,
-  },
-  {
-    name: "Van Guillemin",
-    description: "Artiste internationale — mannequin, luxe, mode, matériel artistique",
-    accentColor: ACCENT_COLORS[7],
-    bgGrad: BG_GRADS[7],
-    imageUrl: null,
-  },
-  {
-    name: "Eaudalix",
-    description: "Artiste française émergeante — Luxe, horlogerie, matériel artistique",
-    accentColor: ACCENT_COLORS[8],
-    bgGrad: BG_GRADS[8],
-    imageUrl: null,
-  },
+  { name: "Leloluce",          artworkStyleTags: ["Luxe", "Mode"],                  mediumTags: ["Photo", "Vidéo"],         accentColor: ACCENT_COLORS[0], bgGrad: BG_GRADS[0], imageUrl: null },
+  { name: "Ekaterina Aristova", artworkStyleTags: ["Mannequin", "Luxe", "Mode"],     mediumTags: ["Photo", "Reel"],          accentColor: ACCENT_COLORS[1], bgGrad: BG_GRADS[1], imageUrl: null },
+  { name: "Artialy",           artworkStyleTags: ["High-tech", "Pop culture"],       mediumTags: ["Vidéo", "Story"],         accentColor: ACCENT_COLORS[2], bgGrad: BG_GRADS[2], imageUrl: null },
+  { name: "Rom Av Jc",         artworkStyleTags: ["Luxe", "Street"],                mediumTags: ["Photo", "Reel"],          accentColor: ACCENT_COLORS[3], bgGrad: BG_GRADS[3], imageUrl: null },
+  { name: "Ninu",              artworkStyleTags: ["Luxe", "Horlogerie"],             mediumTags: ["Photo", "Vidéo"],         accentColor: ACCENT_COLORS[4], bgGrad: BG_GRADS[4], imageUrl: null },
+  { name: "Aurel Street",      artworkStyleTags: ["Luxe", "Horlogerie"],             mediumTags: ["Reel", "Story"],          accentColor: ACCENT_COLORS[5], bgGrad: BG_GRADS[5], imageUrl: null },
+  { name: "Marine Tassou",     artworkStyleTags: ["Luxe", "Matériel artistique"],    mediumTags: ["Photo", "Vidéo"],         accentColor: ACCENT_COLORS[6], bgGrad: BG_GRADS[6], imageUrl: null },
+  { name: "Van Guillemin",     artworkStyleTags: ["Mannequin", "Mode"],              mediumTags: ["Photo", "Reel"],          accentColor: ACCENT_COLORS[7], bgGrad: BG_GRADS[7], imageUrl: null },
+  { name: "Eaudalix",          artworkStyleTags: ["Luxe", "Horlogerie"],             mediumTags: ["Vidéo", "Story"],         accentColor: ACCENT_COLORS[8], bgGrad: BG_GRADS[8], imageUrl: null },
 ];
 
 async function getTopArtists() {
@@ -127,10 +73,13 @@ async function getTopArtists() {
       const name = artist
         ? ((artist.pseudo ?? [artist.name, artist.surname].filter(Boolean).join(" ")) || "Artiste")
         : "Artiste";
-      const description = la.intro ?? la.artworkStyle ?? la.description ?? "";
+      const artworkStyleTags = la.artworkStyle
+        ? la.artworkStyle.split(/\s*[,—\/]\s*/).map(s => s.trim()).filter(Boolean)
+        : [];
       return {
         name,
-        description,
+        artworkStyleTags,
+        mediumTags: la.mediumTags,
         imageUrl: la.imageUrl,
         accentColor: ACCENT_COLORS[i % ACCENT_COLORS.length],
         bgGrad: BG_GRADS[i % BG_GRADS.length],
@@ -161,8 +110,13 @@ export default async function ArtistsGrid() {
           </h2>
         </div>
 
-        {/* 3-col grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Mobile: horizontal snap carousel */}
+        <div className="sm:hidden -mx-6">
+          <ArtistsCarousel artists={artists} />
+        </div>
+
+        {/* Tablet/Desktop: 2→3-col grid */}
+        <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {artists.map((artist, i) => (
             <div
               key={i}
@@ -184,7 +138,7 @@ export default async function ArtistsGrid() {
                     alt={artist.name}
                     fill
                     className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    sizes="(max-width: 1024px) 50vw, 33vw"
                   />
                 ) : null}
 
@@ -207,13 +161,39 @@ export default async function ArtistsGrid() {
               </div>
 
               {/* Info */}
-              <div className="p-5">
-                <h3 className="font-display font-700 text-sm text-white mb-1.5">
+              <div className="p-5 flex flex-col gap-2.5">
+                <h3 className="font-display font-700 text-sm text-white">
                   {artist.name}
                 </h3>
-                <p className="font-body text-sm text-[#9ca3af] leading-relaxed">
-                  {artist.description}
-                </p>
+                {artist.artworkStyleTags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {artist.artworkStyleTags.map((tag, j) => (
+                      <span
+                        key={j}
+                        className="font-body text-[11px] font-600 px-2.5 py-1 rounded-md border"
+                        style={{
+                          color: artist.accentColor,
+                          background: `${artist.accentColor}22`,
+                          borderColor: `${artist.accentColor}55`,
+                        }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {artist.mediumTags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {artist.mediumTags.map((tag, j) => (
+                      <span
+                        key={j}
+                        className="font-body text-[11px] font-500 px-2.5 py-1 rounded-md border text-[#c9cdd4] bg-white/8 border-white/15"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           ))}
