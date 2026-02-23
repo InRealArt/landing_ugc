@@ -2,9 +2,9 @@
   "name": "ira_ugc",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@10.0.0",
   "engines": {
-    "node": ">=18.17.0"
+    "node": ">=18.17.0 <22"
   },
   "scripts": {
     "dev": "next dev",
@@ -12,7 +12,7 @@
     "start": "next start",
     "lint": "eslint",
     "setup": "node scripts/install-with-env.js",
-    "install:safe": "pnpm exec dotenv -e .env -- pnpm install --legacy-peer-deps",
+    "install:safe": "pnpm exec dotenv -e .env -- pnpm install",
     "install:safe:prisma:inrealart": "pnpm exec dotenv -e .env -- pnpm install @InRealArt/prisma-schema",
     "prisma:copy-schema": "mkdir -p prisma && cp node_modules/@InRealArt/prisma-schema/schema.prisma prisma/schema.prisma",
     "update:schema:inrealart": "node scripts/update-prisma-schema.js"
