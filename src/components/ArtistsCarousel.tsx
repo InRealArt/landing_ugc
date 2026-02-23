@@ -55,13 +55,17 @@ export default function ArtistsCarousel({ artists }: Props) {
     return () => observer.disconnect();
   }, [artists.length]);
 
-  /* ── Snap to card by index ── */
+  /* ── Snap to card by index (scroll track only, never the window) ── */
   const snapTo = useCallback((idx: number) => {
     const track = trackRef.current;
     if (!track) return;
     const card = track.querySelector<HTMLElement>(`[data-index="${idx}"]`);
     if (!card) return;
-    card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    const cardLeft = card.offsetLeft;
+    const cardWidth = card.offsetWidth;
+    const trackWidth = track.offsetWidth;
+    const scrollTarget = Math.max(0, cardLeft - trackWidth / 2 + cardWidth / 2);
+    track.scrollTo({ left: scrollTarget, behavior: "smooth" });
     activeIndexRef.current = idx;
     setActiveIndex(idx);
   }, []);
@@ -106,6 +110,7 @@ export default function ArtistsCarousel({ artists }: Props) {
           overflowX: "auto",
           scrollSnapType: "x mandatory",
           WebkitOverflowScrolling: "touch",
+          touchAction: "pan-x",
           paddingLeft: "24px",
           paddingRight: "24px",
           paddingBottom: "4px",
