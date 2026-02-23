@@ -1,71 +1,150 @@
-// Couleurs des artistes tirées du PDF — overlays colorés sur fond sombre inrealart
-const artists = [
+import Image from "next/image";
+import { prisma } from "@/lib/prisma";
+
+type TopArtistRow = {
+  order: number;
+  landingArtist: {
+    imageUrl: string;
+    intro: string | null;
+    artworkStyle: string | null;
+    description: string | null;
+    artist: {
+      pseudo: string | null;
+      name: string | null;
+      surname: string | null;
+    } | null;
+  };
+};
+
+// Accent colors cycled when DB artists don't carry one
+const ACCENT_COLORS = [
+  "#e91e8c",
+  "#ff6f00",
+  "#d4b800",
+  "#00c857",
+  "#00bcd4",
+  "#4f8ef7",
+  "#6052ff",
+  "#a855f7",
+  "#ff6f00",
+];
+
+const BG_GRADS = [
+  "linear-gradient(145deg, #2a0a1e 0%, #131313 100%)",
+  "linear-gradient(145deg, #2a1200 0%, #131313 100%)",
+  "linear-gradient(145deg, #252100 0%, #131313 100%)",
+  "linear-gradient(145deg, #00240e 0%, #131313 100%)",
+  "linear-gradient(145deg, #00242a 0%, #131313 100%)",
+  "linear-gradient(145deg, #001a3a 0%, #131313 100%)",
+  "linear-gradient(145deg, #130e3a 0%, #131313 100%)",
+  "linear-gradient(145deg, #1e0835 0%, #131313 100%)",
+  "linear-gradient(145deg, #2a1500 0%, #131313 100%)",
+];
+
+// Fallback static data — used if DB is empty or unavailable
+const FALLBACK_ARTISTS = [
   {
     name: "Leloluce",
     description: "Artiste internationale — luxe, mode, matériel artistique",
-    accentColor: "#e91e8c",
-    bgGrad: "linear-gradient(145deg, #2a0a1e 0%, #131313 100%)",
-    emoji: "🌹",
+    accentColor: ACCENT_COLORS[0],
+    bgGrad: BG_GRADS[0],
+    imageUrl: null,
   },
   {
     name: "Ekaterina Aristova",
     description: "Artiste internationale — mannequin, luxe, mode, matériel artistique",
-    accentColor: "#ff6f00",
-    bgGrad: "linear-gradient(145deg, #2a1200 0%, #131313 100%)",
-    emoji: "✨",
+    accentColor: ACCENT_COLORS[1],
+    bgGrad: BG_GRADS[1],
+    imageUrl: null,
   },
   {
     name: "Artialy",
     description: "Artiste émergeante — Mode, produits high-tech, pop culture",
-    accentColor: "#d4b800",
-    bgGrad: "linear-gradient(145deg, #252100 0%, #131313 100%)",
-    emoji: "🎨",
+    accentColor: ACCENT_COLORS[2],
+    bgGrad: BG_GRADS[2],
+    imageUrl: null,
   },
   {
     name: "Rom Av Jc",
     description: "Artiste française émergeante — Luxe, street universe, matériel artistique",
-    accentColor: "#00c857",
-    bgGrad: "linear-gradient(145deg, #00240e 0%, #131313 100%)",
-    emoji: "🔥",
+    accentColor: ACCENT_COLORS[3],
+    bgGrad: BG_GRADS[3],
+    imageUrl: null,
   },
   {
     name: "Ninu",
     description: "Artiste française internationale — Luxe, horlogerie, matériel artistique",
-    accentColor: "#00bcd4",
-    bgGrad: "linear-gradient(145deg, #00242a 0%, #131313 100%)",
-    emoji: "💎",
+    accentColor: ACCENT_COLORS[4],
+    bgGrad: BG_GRADS[4],
+    imageUrl: null,
   },
   {
     name: "Aurel Street",
     description: "Artiste français international — Luxe, horlogerie, matériel artistique",
-    accentColor: "#4f8ef7",
-    bgGrad: "linear-gradient(145deg, #001a3a 0%, #131313 100%)",
-    emoji: "🎭",
+    accentColor: ACCENT_COLORS[5],
+    bgGrad: BG_GRADS[5],
+    imageUrl: null,
   },
   {
     name: "Marine Tassou",
     description: "Artiste française émergeante — Luxe, horlogerie, matériel artistique",
-    accentColor: "#6052ff",
-    bgGrad: "linear-gradient(145deg, #130e3a 0%, #131313 100%)",
-    emoji: "🌊",
+    accentColor: ACCENT_COLORS[6],
+    bgGrad: BG_GRADS[6],
+    imageUrl: null,
   },
   {
     name: "Van Guillemin",
     description: "Artiste internationale — mannequin, luxe, mode, matériel artistique",
-    accentColor: "#a855f7",
-    bgGrad: "linear-gradient(145deg, #1e0835 0%, #131313 100%)",
-    emoji: "🦋",
+    accentColor: ACCENT_COLORS[7],
+    bgGrad: BG_GRADS[7],
+    imageUrl: null,
   },
   {
     name: "Eaudalix",
     description: "Artiste française émergeante — Luxe, horlogerie, matériel artistique",
-    accentColor: "#ff6f00",
-    bgGrad: "linear-gradient(145deg, #2a1500 0%, #131313 100%)",
-    emoji: "⭐",
+    accentColor: ACCENT_COLORS[8],
+    bgGrad: BG_GRADS[8],
+    imageUrl: null,
   },
 ];
 
-export default function ArtistsGrid() {
+async function getTopArtists() {
+  try {
+    const rows = await prisma.landingUgcTopArtists.findMany({
+      orderBy: { order: "asc" },
+      include: {
+        landingArtist: {
+          include: { artist: true },
+        },
+      },
+    });
+
+    if (rows.length === 0) return null;
+
+    return (rows as TopArtistRow[]).map((row, i) => {
+      const la = row.landingArtist;
+      const artist = la.artist;
+      const name = artist
+        ? ((artist.pseudo ?? [artist.name, artist.surname].filter(Boolean).join(" ")) || "Artiste")
+        : "Artiste";
+      const description = la.intro ?? la.artworkStyle ?? la.description ?? "";
+      return {
+        name,
+        description,
+        imageUrl: la.imageUrl,
+        accentColor: ACCENT_COLORS[i % ACCENT_COLORS.length],
+        bgGrad: BG_GRADS[i % BG_GRADS.length],
+      };
+    });
+  } catch {
+    return null;
+  }
+}
+
+export default async function ArtistsGrid() {
+  const dbArtists = await getTopArtists();
+  const artists = dbArtists ?? FALLBACK_ARTISTS;
+
   return (
     <section className="py-20 px-6 bg-[#131313]" id="artistes">
       <div className="max-w-7xl mx-auto">
@@ -86,7 +165,7 @@ export default function ArtistsGrid() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {artists.map((artist, i) => (
             <div
-              key={artist.name}
+              key={i}
               className="group relative rounded-xl overflow-hidden cursor-pointer border border-white/6 hover:border-white/15 transition-all duration-300 hover:-translate-y-1"
               style={{ background: artist.bgGrad }}
             >
@@ -97,19 +176,29 @@ export default function ArtistsGrid() {
                   className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 rounded-full opacity-20 blur-2xl transition-opacity duration-300 group-hover:opacity-40"
                   style={{ background: artist.accentColor }}
                 />
+
+                {/* Artist image */}
+                {artist.imageUrl ? (
+                  <Image
+                    src={artist.imageUrl}
+                    alt={artist.name}
+                    fill
+                    className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  />
+                ) : null}
+
                 {/* Index badge */}
                 <div
-                  className="absolute top-4 left-4 w-8 h-8 rounded-lg flex items-center justify-center border border-white/10"
+                  className="absolute top-4 left-4 w-8 h-8 rounded-lg flex items-center justify-center border border-white/10 z-10"
                   style={{ background: `${artist.accentColor}25` }}
                 >
                   <span className="font-display font-800 text-sm text-white">{i + 1}</span>
                 </div>
-                {/* Emoji */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl opacity-30 group-hover:opacity-60 transition-opacity duration-300 select-none">
-                  {artist.emoji}
-                </div>
+
                 {/* Bottom gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+
                 {/* Accent bar */}
                 <div
                   className="absolute bottom-0 left-0 right-0 h-0.5 opacity-50"
