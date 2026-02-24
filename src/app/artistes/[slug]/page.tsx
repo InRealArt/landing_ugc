@@ -50,9 +50,10 @@ export default async function ArtistPage({ params }: Props) {
 
       {/* ── Breadcrumb sous la navbar ── */}
       <div
-        className="flex items-center gap-2 px-6 border-b border-white/5 bg-[#131313]"
+        className="border-b border-white/5 bg-[#131313]"
         style={{ marginTop: "var(--header-height, 90px)", height: "40px" }}
       >
+        <div className="max-w-5xl mx-auto px-6 h-full flex items-center gap-2">
         <Link
           href="/#artistes"
           className="font-body text-[11px] text-[#9ca3af] hover:text-white transition-colors duration-200"
@@ -63,6 +64,7 @@ export default async function ArtistPage({ params }: Props) {
           <path d="M3.5 2L6.5 5L3.5 8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
         <span className="font-body text-[11px] text-white/60 truncate">{name}</span>
+        </div>
       </div>
 
       {/* ── Hero ── */}
