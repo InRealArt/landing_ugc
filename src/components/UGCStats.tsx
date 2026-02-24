@@ -193,9 +193,10 @@ export default function UGCStats() {
 
         {/* CTA */}
         <div ref={ctaRef} style={{ opacity: 0 }} className="flex flex-col items-center gap-5">
-          <a href="#contact" className="btn-primary btn-primary-pulse">
-            Faire ma demande
-          </a>
+          <p className="font-body text-2xl text-[#9ca3af] text-center">
+            Les types de contenu que vous pouvez obtenir dès à présent !
+          </p>
+          
           {/* Arrow deco */}
           <div className="flex gap-3">
             {[-1, 0, 1].map((rot) => (
@@ -217,9 +218,10 @@ export default function UGCStats() {
               </svg>
             ))}
           </div>
-          <p className="font-body text-xs text-[#9ca3af] text-center">
-            Le type de contenu que vous pouvez obtenir dès à présent !
-          </p>
+          <a href="#contact" className="btn-primary btn-primary-pulse">
+            Faire ma demande
+          </a>
+          
         </div>
       </div>
 

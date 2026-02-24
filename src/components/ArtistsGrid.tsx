@@ -1,20 +1,31 @@
 import Image from "next/image";
+import Link from "next/link";
 import { unstable_noStore as noStore } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { buildArtistSlug } from "@/lib/artistSlug";
 import ArtistsCarousel from "./ArtistsCarousel";
 
 type TopArtistRow = {
   order: number;
-  landingArtist: {
-    imageUrl: string;
-    artworkStyle: string | null;
-    mediumTags: string[];
-    artist: {
-      pseudo: string | null;
-      name: string | null;
-      surname: string | null;
-    } | null;
-  };
+  landingUgcArtistProfile: {
+    id: number;
+    name: string | null;
+    surname: string | null;
+    pseudo: string | null;
+    profileImageUrl: string | null;
+    title: string | null;
+    mediaUrls: string[];
+  } | null;
+};
+
+type ArtistCard = {
+  slug: string | null;
+  name: string;
+  artworkStyleTags: string[];
+  mediumTags: string[];
+  imageUrl: string | null;
+  accentColor: string;
+  bgGrad: string;
 };
 
 // Accent colors cycled when DB artists don't carry one
@@ -43,16 +54,16 @@ const BG_GRADS = [
 ];
 
 // Fallback static data — used if DB is empty or unavailable
-const FALLBACK_ARTISTS = [
-  { name: "Leloluce",          artworkStyleTags: ["Luxe", "Mode"],                  mediumTags: ["Photo", "Vidéo"],         accentColor: ACCENT_COLORS[0], bgGrad: BG_GRADS[0], imageUrl: null },
-  { name: "Ekaterina Aristova", artworkStyleTags: ["Mannequin", "Luxe", "Mode"],     mediumTags: ["Photo", "Reel"],          accentColor: ACCENT_COLORS[1], bgGrad: BG_GRADS[1], imageUrl: null },
-  { name: "Artialy",           artworkStyleTags: ["High-tech", "Pop culture"],       mediumTags: ["Vidéo", "Story"],         accentColor: ACCENT_COLORS[2], bgGrad: BG_GRADS[2], imageUrl: null },
-  { name: "Rom Av Jc",         artworkStyleTags: ["Luxe", "Street"],                mediumTags: ["Photo", "Reel"],          accentColor: ACCENT_COLORS[3], bgGrad: BG_GRADS[3], imageUrl: null },
-  { name: "Ninu",              artworkStyleTags: ["Luxe", "Horlogerie"],             mediumTags: ["Photo", "Vidéo"],         accentColor: ACCENT_COLORS[4], bgGrad: BG_GRADS[4], imageUrl: null },
-  { name: "Aurel Street",      artworkStyleTags: ["Luxe", "Horlogerie"],             mediumTags: ["Reel", "Story"],          accentColor: ACCENT_COLORS[5], bgGrad: BG_GRADS[5], imageUrl: null },
-  { name: "Marine Tassou",     artworkStyleTags: ["Luxe", "Matériel artistique"],    mediumTags: ["Photo", "Vidéo"],         accentColor: ACCENT_COLORS[6], bgGrad: BG_GRADS[6], imageUrl: null },
-  { name: "Van Guillemin",     artworkStyleTags: ["Mannequin", "Mode"],              mediumTags: ["Photo", "Reel"],          accentColor: ACCENT_COLORS[7], bgGrad: BG_GRADS[7], imageUrl: null },
-  { name: "Eaudalix",          artworkStyleTags: ["Luxe", "Horlogerie"],             mediumTags: ["Vidéo", "Story"],         accentColor: ACCENT_COLORS[8], bgGrad: BG_GRADS[8], imageUrl: null },
+const FALLBACK_ARTISTS: ArtistCard[] = [
+  { slug: null, name: "Leloluce",          artworkStyleTags: ["Luxe", "Mode"],                  mediumTags: ["Photo", "Vidéo"],         accentColor: ACCENT_COLORS[0], bgGrad: BG_GRADS[0], imageUrl: null },
+  { slug: null, name: "Ekaterina Aristova", artworkStyleTags: ["Mannequin", "Luxe", "Mode"],     mediumTags: ["Photo", "Reel"],          accentColor: ACCENT_COLORS[1], bgGrad: BG_GRADS[1], imageUrl: null },
+  { slug: null, name: "Artialy",           artworkStyleTags: ["High-tech", "Pop culture"],       mediumTags: ["Vidéo", "Story"],         accentColor: ACCENT_COLORS[2], bgGrad: BG_GRADS[2], imageUrl: null },
+  { slug: null, name: "Rom Av Jc",         artworkStyleTags: ["Luxe", "Street"],                mediumTags: ["Photo", "Reel"],          accentColor: ACCENT_COLORS[3], bgGrad: BG_GRADS[3], imageUrl: null },
+  { slug: null, name: "Ninu",              artworkStyleTags: ["Luxe", "Horlogerie"],             mediumTags: ["Photo", "Vidéo"],         accentColor: ACCENT_COLORS[4], bgGrad: BG_GRADS[4], imageUrl: null },
+  { slug: null, name: "Aurel Street",      artworkStyleTags: ["Luxe", "Horlogerie"],             mediumTags: ["Reel", "Story"],          accentColor: ACCENT_COLORS[5], bgGrad: BG_GRADS[5], imageUrl: null },
+  { slug: null, name: "Marine Tassou",     artworkStyleTags: ["Luxe", "Matériel artistique"],    mediumTags: ["Photo", "Vidéo"],         accentColor: ACCENT_COLORS[6], bgGrad: BG_GRADS[6], imageUrl: null },
+  { slug: null, name: "Van Guillemin",     artworkStyleTags: ["Mannequin", "Mode"],              mediumTags: ["Photo", "Reel"],          accentColor: ACCENT_COLORS[7], bgGrad: BG_GRADS[7], imageUrl: null },
+  { slug: null, name: "Eaudalix",          artworkStyleTags: ["Luxe", "Horlogerie"],             mediumTags: ["Vidéo", "Story"],         accentColor: ACCENT_COLORS[8], bgGrad: BG_GRADS[8], imageUrl: null },
 ];
 
 async function getTopArtists() {
@@ -61,28 +72,27 @@ async function getTopArtists() {
     const rows = await prisma.landingUgcTopArtists.findMany({
       orderBy: { order: "asc" },
       include: {
-        landingArtist: {
-          include: { artist: true },
-        },
+        landingUgcArtistProfile: true,
       },
     });
 
     if (rows.length === 0) return null;
 
     return (rows as TopArtistRow[]).map((row, i) => {
-      const la = row.landingArtist;
-      const artist = la.artist;
-      const name = artist
-        ? ((artist.pseudo ?? [artist.name, artist.surname].filter(Boolean).join(" ")) || "Artiste")
+      const profile = row.landingUgcArtistProfile;
+      const name = profile
+        ? (profile.pseudo ?? ([profile.name, profile.surname].filter(Boolean).join(" ") || "Artiste"))
         : "Artiste";
-      const artworkStyleTags = la.artworkStyle
-        ? la.artworkStyle.split(/\s*[,—\/]\s*/).map(s => s.trim()).filter(Boolean)
+      const artworkStyleTags = profile?.title
+        ? profile.title.split(/\s*[,—\/]\s*/).map(s => s.trim()).filter(Boolean)
         : [];
+      const slug = profile ? buildArtistSlug(profile) : null;
       return {
+        slug,
         name,
         artworkStyleTags,
-        mediumTags: la.mediumTags,
-        imageUrl: la.imageUrl,
+        mediumTags: [] as string[],
+        imageUrl: profile?.profileImageUrl ?? null,
         accentColor: ACCENT_COLORS[i % ACCENT_COLORS.length],
         bgGrad: BG_GRADS[i % BG_GRADS.length],
       };
@@ -120,9 +130,10 @@ export default async function ArtistsGrid() {
         {/* Tablet/Desktop: 2→3-col grid */}
         <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {artists.map((artist, i) => (
-            <div
+            <Link
               key={i}
-              className="group relative rounded-xl overflow-hidden cursor-pointer border border-white/6 hover:border-white/15 transition-all duration-300 hover:-translate-y-1"
+              href={artist.slug ? `/artistes/${artist.slug}` : "#artistes"}
+              className="group relative rounded-xl overflow-hidden cursor-pointer border border-white/6 hover:border-white/15 transition-all duration-300 hover:-translate-y-1 block"
               style={{ background: artist.bgGrad }}
             >
               {/* Visual area */}
@@ -197,7 +208,7 @@ export default async function ArtistsGrid() {
                   </div>
                 )}
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 

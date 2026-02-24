@@ -1,9 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useRef, useState, useCallback, useEffect } from "react";
 
 type ArtistCard = {
+  slug: string | null;
   name: string;
   artworkStyleTags: string[];
   mediumTags: string[];
@@ -119,8 +121,9 @@ export default function ArtistsCarousel({ artists }: Props) {
         }}
       >
         {artists.map((artist, i) => (
-          <div
+          <Link
             key={i}
+            href={artist.slug ? `/artistes/${artist.slug}` : "#artistes"}
             data-index={i}
             style={{
               flex: "0 0 calc(85vw)",
@@ -138,6 +141,9 @@ export default function ArtistsCarousel({ artists }: Props) {
                 ? `0 8px 32px ${artist.accentColor}33, 0 2px 8px rgba(0,0,0,0.6)`
                 : "0 2px 8px rgba(0,0,0,0.4)",
               willChange: "transform",
+              display: "block",
+              textDecoration: "none",
+              color: "inherit",
             }}
           >
             {/* Visual area */}
@@ -280,7 +286,7 @@ export default function ArtistsCarousel({ artists }: Props) {
                 </div>
               )}
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
