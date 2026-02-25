@@ -1,24 +1,64 @@
 const rows = [
   {
-    feature: "Tarif mensuel",
+    feature: "Frais mensuels fixes",
     ira: "0 €",
-    platforms: "> 200 €/mois",
-    agencies: "> 1 000 €/mois",
+    platforms: "200–500 €/mois",
+    agencies: "1 000–3 000 €/mois",
   },
   {
-    feature: "Frais de service pour les marques",
-    ira: "0 €",
-    platforms: "Variable en %",
-    agencies: "N/A",
+    feature: "Délai de livraison",
+    ira: "< 1 semaine",
+    platforms: "2–3 semaines",
+    agencies: "3–6 semaines",
   },
   {
-    feature: "Temps moyen de livraison des UGCs",
-    ira: "Moins d'une semaine",
-    platforms: "Au moins deux semaines",
-    agencies: "Plus de trois semaines",
+    feature: "Droits paid media inclus",
+    ira: "Oui, à définir au brief",
+    platforms: "En option payante",
+    agencies: "Selon contrat",
   },
-  { feature: "Artistes vérifiés",        ira: "check", platforms: "cross", agencies: "cross" },
-  { feature: "Programme d'affiliation",  ira: "check", platforms: "cross", agencies: "cross" },
+  {
+    feature: "Droits d'exclusivité secteur",
+    ira: "Négociable",
+    platforms: "Non",
+    agencies: "Rarement",
+  },
+  {
+    feature: "Révisions incluses",
+    ira: "Oui",
+    platforms: "1 à 2 max",
+    agencies: "Limitées",
+  },
+  {
+    feature: "Interlocuteur dédié",
+    ira: "Oui",
+    platforms: "Interface self-service",
+    agencies: "Account manager",
+  },
+  {
+    feature: "Artistes vérifiés",
+    ira: "Oui",
+    platforms: "Profils non vérifiés",
+    agencies: "Variable",
+  },
+  {
+    feature: "Scalabilité (volume/mois)",
+    ira: "À définir selon projet",
+    platforms: "Illimitée (plateforme)",
+    agencies: "Limitée (équipe)",
+  },
+  {
+    feature: "Secteurs couverts",
+    ira: "Tous",
+    platforms: "Tous",
+    agencies: "Spécialisés ou généralistes",
+  },
+  {
+    feature: "Formats livrables",
+    ira: "Vidéo, photo, reel",
+    platforms: "Majoritairement vidéo",
+    agencies: "Selon agence",
+  },
 ];
 
 function Check() {
@@ -68,10 +108,10 @@ export default function ComparisonTable() {
                   </div>
                 </th>
                 <th className="bg-[#1d1c1c] border-l border-white/5 p-5 text-center">
-                  <span className="font-display font-600 text-xs text-white/40 uppercase tracking-wider">Plateformes</span>
+                  <span className="font-display font-600 text-xs text-white/40 uppercase tracking-wider">Plateformes (Billo, Insense…)</span>
                 </th>
                 <th className="bg-[#1d1c1c] border-l border-white/5 p-5 text-center">
-                  <span className="font-display font-600 text-xs text-white/40 uppercase tracking-wider">Agence d&apos;UGC</span>
+                  <span className="font-display font-600 text-xs text-white/40 uppercase tracking-wider">Agence UGC classique</span>
                 </th>
               </tr>
             </thead>
@@ -118,6 +158,10 @@ export default function ComparisonTable() {
             </tbody>
           </table>
         </div>
+
+        <p className="font-display text-sm text-[#9ca3af] mt-4 text-center max-w-2xl mx-auto">
+          <span className="text-white/80 font-600">Note :</span> Droits paid media inclus dans chaque collaboration, durée et territoire définis au brief.
+        </p>
       </div>
     </section>
   );

@@ -42,9 +42,9 @@ export default function Navbar() {
         {/* Nav Links — Desktop */}
         <div className="hidden md:flex items-center gap-8">
           {[
-            { label: "Pour les Marques", href: "#marques" },
-            { label: "Nos Artistes", href: "#artistes" },
-            { label: "Comment ça marche ?", href: "#comment" },
+            { label: "Pour les Marques", href: "/#marques" },
+            { label: "Nos Artistes", href: "/#artistes" },
+            { label: "Comment ça marche ?", href: "/#comment" },
           ].map((item) => (
             <a
               key={item.href}
@@ -59,7 +59,7 @@ export default function Navbar() {
 
         {/* CTA */}
         <div className="flex items-center gap-3">
-          <a href="#contact" className="btn-primary btn-primary-pulse hidden sm:inline-flex">
+          <a href="/#contact" className="btn-primary btn-primary-pulse hidden sm:inline-flex">
             Faire sa demande
           </a>
           {/* Mobile hamburger */}
@@ -79,9 +79,9 @@ export default function Navbar() {
       {menuOpen && (
         <div className="md:hidden bg-[#131313]/98 backdrop-blur-xl border-t border-white/5 px-6 py-6 flex flex-col gap-5">
           {[
-            { label: "Pour les Marques", href: "#marques" },
-            { label: "Nos Artistes", href: "#artistes" },
-            { label: "Comment ça marche ?", href: "#comment" },
+            { label: "Pour les Marques", href: "/#marques" },
+            { label: "Nos Artistes", href: "/#artistes" },
+            { label: "Comment ça marche ?", href: "/#comment" },
           ].map((item) => (
             <a
               key={item.href}
@@ -92,7 +92,7 @@ export default function Navbar() {
               {item.label}
             </a>
           ))}
-          <a href="#contact" className="btn-primary w-full text-center mt-2">
+          <a href="/#contact" className="btn-primary w-full text-center mt-2">
             Faire sa demande
           </a>
         </div>

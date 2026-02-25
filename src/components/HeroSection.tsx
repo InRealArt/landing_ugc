@@ -118,25 +118,25 @@ export default function HeroSection() {
             {/* Headline */}
             <div ref={headlineRef} style={{ opacity: 0 }}>
               <h1 className="font-display font-800 text-4xl sm:text-5xl lg:text-[3.4rem] leading-[1.08] tracking-tight text-white">
-                Travaillez avec les{" "}
-                <span className="text-[#6052ff]">meilleurs artistes</span>{" "}
-                français pour du contenu UGC{" "}
-                <span className="text-[#6052ff]">authentique</span>{" "}
-                pour votre marque
+                Du contenu publicitaire{" "}
+                <span className="text-[#6052ff]">qui convertit.</span>{" "}
+                Produit par de vrais{" "}
+                <span className="text-[#6052ff]">artistes français.</span>{" "}
+                Livré en{" "}
+                <span className="text-[#6052ff]">moins d&apos;une semaine.</span>
               </h1>
             </div>
 
             {/* Subtext */}
             <p ref={subtextRef} style={{ opacity: 0 }} className="font-body text-[#9ca3af] text-lg leading-relaxed max-w-lg">
-              Ne tombez plus jamais à court de créa publicitaires et organiques
-              avec l&apos;agence influence{" "}
-              <span className="text-white font-600">InRealArt.</span>
+              Stoppez la dépendance aux studios créa et aux influenceurs génériques.{" "}
+              <span className="text-white font-600">InRealArt</span> connecte votre marque aux meilleurs artistes UGC français — sans frais mensuels, sans minimum d&apos;engagement.
             </p>
 
             {/* CTAs */}
             <div ref={ctasRef} style={{ opacity: 0 }} className="flex flex-wrap items-center gap-4">
-              <a href="#contact" className="btn-primary btn-primary-pulse">
-                Faire ma demande
+              <a href="https://calendly.com/inrealart" target="_blank" rel="noopener noreferrer" className="btn-primary btn-primary-pulse">
+                Obtenir un devis en 48h
               </a>
               <a href="#artistes" className="btn-outline">
                 Voir nos artistes →

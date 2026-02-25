@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
+import ArtConvertsSection from "@/components/ArtConvertsSection";
 import ClientsMarquee from "@/components/ClientsMarquee";
 import ArtistsGrid from "@/components/ArtistsGrid";
 import HowItWorks from "@/components/HowItWorks";
@@ -16,6 +17,7 @@ export default function HomePage() {
       <Navbar />
       <main>
         <HeroSection />
+        <ArtConvertsSection />
         <ClientsMarquee />
         <ArtistsGrid />
         <HowItWorks />
