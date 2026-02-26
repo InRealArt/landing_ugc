@@ -176,12 +176,12 @@ export default async function ArtistsGrid() {
               {/* Info */}
               <div className="p-5 flex items-center justify-between gap-3">
                 <div className="flex flex-col gap-1 min-w-0">
-                  <h3 className="font-display font-800 text-sm text-white truncate leading-tight">
+                  <h3 className="font-display font-800 text-2xl text-white truncate leading-tight">
                     {artist.name}
                   </h3>
                   {artist.artworkStyleTags.length > 0 && (
                     <p
-                      className="font-body text-[11px] font-500 truncate"
+                      className="font-body text-[17px] font-500 truncate"
                       style={{ color: `${artist.accentColor}cc` }}
                     >
                       {artist.artworkStyleTags.join(" · ")}
@@ -189,7 +189,7 @@ export default async function ArtistsGrid() {
                   )}
                 </div>
                 <div
-                  className="shrink-0 flex items-center gap-1 font-display font-700 text-[10px] uppercase tracking-[0.1em] px-3 py-1.5 rounded-lg border transition-all duration-300 group-hover:border-opacity-80"
+                  className="shrink-0 flex items-center gap-1.5 font-display font-700 text-[14px] uppercase tracking-[0.1em] px-4 py-2 rounded-lg border transition-all duration-300 group-hover:border-opacity-80"
                   style={{
                     color: artist.accentColor,
                     borderColor: `${artist.accentColor}50`,

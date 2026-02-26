@@ -147,7 +147,7 @@ export default function ArtistsCarousel({ artists }: Props) {
             }}
           >
             {/* Visual area */}
-            <div style={{ position: "relative", aspectRatio: "4/3", overflow: "hidden" }}>
+            <div style={{ position: "relative", aspectRatio: "3/4", overflow: "hidden" }}>
               {/* Accent glow */}
               <div
                 style={{
@@ -171,7 +171,7 @@ export default function ArtistsCarousel({ artists }: Props) {
                   src={artist.imageUrl}
                   alt={artist.name}
                   fill
-                  className="object-cover object-top"
+                  className="object-cover object-center"
                   sizes="85vw"
                 />
               ) : null}
@@ -229,62 +229,63 @@ export default function ArtistsCarousel({ artists }: Props) {
             </div>
 
             {/* Info */}
-            <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "10px" }}>
-              <h3
+            <div style={{ padding: "20px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px", minWidth: 0 }}>
+                <h3
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontWeight: 800,
+                    fontSize: "22px",
+                    color: "#fff",
+                    margin: 0,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {artist.name}
+                </h3>
+                {artist.artworkStyleTags.length > 0 && (
+                  <p
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: "17px",
+                      fontWeight: 500,
+                      color: `${artist.accentColor}cc`,
+                      margin: 0,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {artist.artworkStyleTags.join(" · ")}
+                  </p>
+                )}
+              </div>
+              <div
                 style={{
+                  flexShrink: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
                   fontFamily: "var(--font-display)",
                   fontWeight: 700,
                   fontSize: "14px",
-                  color: "#fff",
-                  margin: 0,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  padding: "8px 16px",
+                  borderRadius: "8px",
+                  border: `1px solid ${artist.accentColor}50`,
+                  background: `${artist.accentColor}12`,
+                  color: artist.accentColor,
                 }}
               >
-                {artist.name}
-              </h3>
-
-              {artist.artworkStyleTags.length > 0 && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                  {artist.artworkStyleTags.map((tag, j) => (
-                    <span
-                      key={j}
-                      style={{
-                        fontFamily: "var(--font-body)",
-                        fontSize: "11px",
-                        fontWeight: 600,
-                        padding: "4px 10px",
-                        borderRadius: "6px",
-                        color: artist.accentColor,
-                        background: `${artist.accentColor}22`,
-                        border: `1px solid ${artist.accentColor}55`,
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {artist.mediumTags.length > 0 && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                  {artist.mediumTags.map((tag, j) => (
-                    <span
-                      key={j}
-                      style={{
-                        fontFamily: "var(--font-body)",
-                        fontSize: "11px",
-                        fontWeight: 500,
-                        padding: "4px 10px",
-                        borderRadius: "6px",
-                        color: "#c9cdd4",
-                        background: "rgba(255,255,255,0.08)",
-                        border: "1px solid rgba(255,255,255,0.15)",
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
+                Voir
+                <svg width="12" height="12" viewBox="0 0 10 10" fill="none">
+                  <path d="M2 5h6M5.5 2.5L8 5l-2.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
             </div>
           </Link>
         ))}

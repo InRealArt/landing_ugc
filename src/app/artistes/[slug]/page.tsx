@@ -319,7 +319,7 @@ export default async function ArtistPage({ params }: Props) {
                   className="font-display font-800 text-white tracking-tight leading-none"
                   style={{ fontSize: "clamp(1.8rem, 4vw, 2.8rem)", letterSpacing: "-0.025em" }}
                 >
-                  Mes <span style={{ color: "#6052ff" }}>Reels</span>
+                  Ses <span style={{ color: "#6052ff" }}>Reels</span>
                 </h2>
               </div>
               <span className="font-display text-[11px] text-white/20 tracking-[0.1em]">
