@@ -27,7 +27,7 @@
     "react-dom": "19.2.3"
   },
   "devDependencies": {
-    "@InRealArt/prisma-schema": "^1.2.5",
+    "@InRealArt/prisma-schema": "^1.2.7",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/pg": "^8.16.0",

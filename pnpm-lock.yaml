@@ -31,8 +31,8 @@ importers:
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@InRealArt/prisma-schema':
-        specifier: ^1.2.5
-        version: 1.2.5
+        specifier: ^1.2.7
+        version: 1.2.7
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.2.1
@@ -72,8 +72,8 @@ importers:
 
 packages:
 
-  '@InRealArt/prisma-schema@1.2.5':
-    resolution: {integrity: sha512-fb94L7kgUuqtyioxOTYyplwGc5YCfZPW390CQu86B54VYAJbn9K105gzo5Fn37EHfrGIQ/j+qU8zxsoJ7mXhtw==, tarball: https://npm.pkg.github.com/download/@InRealArt/prisma-schema/1.2.5/9583fd82be290c47cbbb8739c8e9d33fc5405f4b}
+  '@InRealArt/prisma-schema@1.2.7':
+    resolution: {integrity: sha512-V90T5DEg7ZyUFHy5AZV8RlU2/HQgjZSUUGANEFsKND6FXaqxCEqRbCNt4Fy0HYutXh2m8OfsmYZg3Pw4vbIGPQ==, tarball: https://npm.pkg.github.com/download/@InRealArt/prisma-schema/1.2.7/92fa611ee7869aaaa3de62a4753edd680e162092}
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -2343,7 +2343,7 @@ packages:
 
 snapshots:
 
-  '@InRealArt/prisma-schema@1.2.5': {}
+  '@InRealArt/prisma-schema@1.2.7': {}
 
   '@alloc/quick-lru@5.2.0': {}
 

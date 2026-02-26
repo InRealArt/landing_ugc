@@ -169,3 +169,245 @@ body {
 /* ─── Accent pink (secondaire, héritage PDF) ─── */
 .text-accent  { color: #e91e8c; }
 .bg-accent    { background: #e91e8c; }
+
+/* ─── Gallery card hover (artiste page) ─── */
+.gallery-card {
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: border-color 0.3s ease;
+}
+.gallery-card:hover {
+  border-color: rgba(96, 82, 255, 0.25);
+}
+
+/* ─── Reels section — grille 9:16 style Instagram ─── */
+
+/*
+ * Technique : le container est toujours un flex/grid sur les items.
+ * Chaque item est un WRAPPER (.reel-wrap) qui porte l'aspect-ratio.
+ * La card (.reel-card) est en position absolute inset-0 à l'intérieur.
+ * Ainsi le grid/flex ne peut pas écraser la hauteur.
+ */
+
+/* Mobile: scroll horizontal, items fixes 160px */
+.reels-scroll-container {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  /* déborde légèrement sur les bords pour suggérer le scroll */
+  margin-left: 0;
+  margin-right: 0;
+}
+.reels-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Tablette : 3 colonnes égales */
+@media (min-width: 640px) {
+  .reels-scroll-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    overflow-x: visible;
+    scroll-snap-type: none;
+    padding-bottom: 0;
+  }
+}
+
+/* Large desktop : 4 colonnes */
+@media (min-width: 1024px) {
+  .reels-scroll-container {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+}
+
+/* Wrapper — porte l'aspect-ratio, le grid s'adapte à lui */
+.reel-wrap {
+  /* Mobile: largeur fixe pour le scroll horizontal */
+  flex: 0 0 160px;
+  scroll-snap-align: start;
+  position: relative;
+  width: 160px;
+  /* L'astuce : padding-bottom crée la hauteur 9:16 de façon fiable */
+  padding-bottom: calc(160px * 16 / 9);
+  border-radius: 14px;
+  overflow: hidden;
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: border-color 0.3s ease, transform 0.25s ease;
+}
+@media (min-width: 640px) {
+  .reel-wrap {
+    flex: unset;
+    width: 100%;
+    /* Sur grid, on remet aspect-ratio natif — ça marche car la hauteur n'est plus contrainte */
+    padding-bottom: 0;
+    aspect-ratio: 9 / 16;
+  }
+}
+.reel-wrap:hover {
+  border-color: rgba(96, 82, 255, 0.35);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Card — remplit le wrapper en absolu */
+.reel-card {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+/* Hover overlay — voile + icône play, pure CSS */
+.reel-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.1) 50%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  z-index: 2;
+}
+.reel-wrap:hover .reel-overlay {
+  opacity: 1;
+}
+
+.reel-play-icon {
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7));
+  transition: transform 0.18s ease;
+}
+.reel-wrap:hover .reel-play-icon {
+  transform: scale(1.12);
+}
+
+/* ─── Photos section — grille uniforme style Instagram ─── */
+/*
+ * On abandonne le CSS columns masonry au profit d'une grille
+ * uniforme avec des vignettes carrées, propre et Instagram-like.
+ * 3 colonnes mobiles, 4 tablette, 5 desktop.
+ */
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+}
+@media (min-width: 640px) {
+  .photos-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+}
+@media (min-width: 1024px) {
+  .photos-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+  }
+}
+
+/* Chaque cellule photo : carré parfait avec overflow hidden */
+.photo-cell {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #1a1a1a;
+  cursor: pointer;
+}
+.photo-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+  display: block;
+}
+.photo-cell:hover img {
+  transform: scale(1.06);
+}
+
+/* Overlay hover discret sur les photos */
+.photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(96, 82, 255, 0.12);
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  z-index: 1;
+}
+.photo-cell:hover .photo-overlay {
+  opacity: 1;
+}
+
+/* ─── Presentation HTML content (contenu admin BDD, rendu interprété) ─── */
+.presentation-content {
+  font-family: var(--font-body);
+  color: #a8adb8;
+  line-height: 1.75;
+}
+.presentation-content p {
+  margin-bottom: 1em;
+}
+.presentation-content p:last-child {
+  margin-bottom: 0;
+}
+.presentation-content h1,
+.presentation-content h2,
+.presentation-content h3,
+.presentation-content h4,
+.presentation-content h5,
+.presentation-content h6 {
+  font-family: var(--font-display);
+  color: #ffffff;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+.presentation-content h1 { font-size: 1.5rem; }
+.presentation-content h2 { font-size: 1.25rem; }
+.presentation-content h3 { font-size: 1.1rem; }
+.presentation-content h4,
+.presentation-content h5,
+.presentation-content h6 { font-size: 1rem; }
+.presentation-content ul,
+.presentation-content ol {
+  padding-left: 1.4em;
+  margin-bottom: 1em;
+}
+.presentation-content ul { list-style-type: disc; }
+.presentation-content ol { list-style-type: decimal; }
+.presentation-content li {
+  margin-bottom: 0.35em;
+}
+.presentation-content strong,
+.presentation-content b {
+  color: #d4d8e1;
+  font-weight: 600;
+}
+.presentation-content em,
+.presentation-content i {
+  font-style: italic;
+  color: #b8bcc8;
+}
+.presentation-content a {
+  color: #6052ff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+.presentation-content a:hover {
+  color: #8577ff;
+}

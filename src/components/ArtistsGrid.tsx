@@ -137,7 +137,7 @@ export default async function ArtistsGrid() {
               style={{ background: artist.bgGrad }}
             >
               {/* Visual area */}
-              <div className="aspect-[4/3] relative overflow-hidden">
+              <div className="aspect-[3/4] relative overflow-hidden">
                 {/* Accent glow */}
                 <div
                   className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 rounded-full opacity-20 blur-2xl transition-opacity duration-300 group-hover:opacity-40"
@@ -150,7 +150,7 @@ export default async function ArtistsGrid() {
                     src={artist.imageUrl}
                     alt={artist.name}
                     fill
-                    className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                    className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                     sizes="(max-width: 1024px) 50vw, 33vw"
                   />
                 ) : null}
@@ -163,8 +163,8 @@ export default async function ArtistsGrid() {
                   <span className="font-display font-800 text-sm text-white">{i + 1}</span>
                 </div>
 
-                {/* Bottom gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                {/* Bottom gradient — plus profond pour lisibilité overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
                 {/* Accent bar */}
                 <div
@@ -174,39 +174,33 @@ export default async function ArtistsGrid() {
               </div>
 
               {/* Info */}
-              <div className="p-5 flex flex-col gap-2.5">
-                <h3 className="font-display font-700 text-sm text-white">
-                  {artist.name}
-                </h3>
-                {artist.artworkStyleTags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {artist.artworkStyleTags.map((tag, j) => (
-                      <span
-                        key={j}
-                        className="font-body text-[11px] font-600 px-2.5 py-1 rounded-md border"
-                        style={{
-                          color: artist.accentColor,
-                          background: `${artist.accentColor}22`,
-                          borderColor: `${artist.accentColor}55`,
-                        }}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                {artist.mediumTags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {artist.mediumTags.map((tag, j) => (
-                      <span
-                        key={j}
-                        className="font-body text-[11px] font-500 px-2.5 py-1 rounded-md border text-[#c9cdd4] bg-white/8 border-white/15"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
+              <div className="p-5 flex items-center justify-between gap-3">
+                <div className="flex flex-col gap-1 min-w-0">
+                  <h3 className="font-display font-800 text-sm text-white truncate leading-tight">
+                    {artist.name}
+                  </h3>
+                  {artist.artworkStyleTags.length > 0 && (
+                    <p
+                      className="font-body text-[11px] font-500 truncate"
+                      style={{ color: `${artist.accentColor}cc` }}
+                    >
+                      {artist.artworkStyleTags.join(" · ")}
+                    </p>
+                  )}
+                </div>
+                <div
+                  className="shrink-0 flex items-center gap-1 font-display font-700 text-[10px] uppercase tracking-[0.1em] px-3 py-1.5 rounded-lg border transition-all duration-300 group-hover:border-opacity-80"
+                  style={{
+                    color: artist.accentColor,
+                    borderColor: `${artist.accentColor}50`,
+                    background: `${artist.accentColor}12`,
+                  }}
+                >
+                  Voir
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="transition-transform duration-300 group-hover:translate-x-0.5">
+                    <path d="M2 5h6M5.5 2.5L8 5l-2.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
               </div>
             </Link>
           ))}
