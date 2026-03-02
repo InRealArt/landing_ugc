@@ -5,6 +5,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { buildArtistSlug } from "@/lib/artistSlug";
 import Navbar from "@/components/Navbar";
+import ArtistSocialMetrics from "@/components/ArtistSocialMetrics";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -13,7 +14,9 @@ type Props = {
 async function getArtistBySlug(slug: string) {
   noStore();
   try {
-    const all = await prisma.landingUgcArtistProfile.findMany();
+    const all = await prisma.landingUgcArtistProfile.findMany({
+      include: { socialMetrics: true },
+    });
     return all.find((a) => buildArtistSlug(a) === slug) ?? null;
   } catch {
     return null;
@@ -288,6 +291,13 @@ export default async function ArtistPage({ params }: Props) {
           {!artist.presentation && <div className="pb-20" />}
         </div>
       </section>
+
+      {/* ══════════════════════════════════════════
+          SECTION — Présence Sociale
+      ══════════════════════════════════════════ */}
+      {artist.socialMetrics && (
+        <ArtistSocialMetrics metrics={artist.socialMetrics} />
+      )}
 
       {/* ══════════════════════════════════════════
           SECTION 02 — Reels
