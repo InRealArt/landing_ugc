@@ -2,71 +2,166 @@
 
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
+import { useLenis } from "./LenisContext";
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
+  const scanLineRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
-  const headlineRef = useRef<HTMLDivElement>(null);
+  const line1Ref = useRef<HTMLDivElement>(null);
+  const line2Ref = useRef<HTMLDivElement>(null);
+  const line3Ref = useRef<HTMLDivElement>(null);
   const subtextRef = useRef<HTMLParagraphElement>(null);
   const ctasRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const mediaGridRef = useRef<HTMLDivElement>(null);
+  const card1Ref = useRef<HTMLDivElement>(null);
+  const card2Ref = useRef<HTMLDivElement>(null);
+  const card3Ref = useRef<HTMLDivElement>(null);
   const floatingBadgeRef = useRef<HTMLDivElement>(null);
+  const glow1Ref = useRef<HTMLDivElement>(null);
+  const glow2Ref = useRef<HTMLDivElement>(null);
+  const lenis = useLenis();
 
+  // Parallax glows linked to Lenis scroll
   useEffect(() => {
+    if (!lenis) return;
+    function onScroll({ scroll }: { scroll: number }) {
+      if (glow1Ref.current) glow1Ref.current.style.transform = `translateY(${scroll * 0.12}px)`;
+      if (glow2Ref.current) glow2Ref.current.style.transform = `translateY(${scroll * 0.06}px)`;
+    }
+    lenis.on("scroll", onScroll);
+    return () => lenis.off("scroll", onScroll);
+  }, [lenis]);
+
+  // Mouse parallax on media grid
+  useEffect(() => {
+    const section = sectionRef.current;
+    const grid = mediaGridRef.current;
+    if (!section || !grid) return;
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) return;
+
+    function onMouseMove(e: MouseEvent) {
+      const rect = section!.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = (e.clientX - cx) / rect.width;   // -0.5 → 0.5
+      const dy = (e.clientY - cy) / rect.height;  // -0.5 → 0.5
+
+      gsap.to(grid, {
+        rotateY: dx * 6,
+        rotateX: -dy * 4,
+        x: dx * 14,
+        duration: 1.2,
+        ease: "power1.out",
+        transformPerspective: 1200,
+      });
+    }
+
+    function onMouseLeave() {
+      gsap.to(grid, {
+        rotateY: 0,
+        rotateX: 0,
+        x: 0,
+        duration: 1.4,
+        ease: "power2.out",
+        transformPerspective: 1200,
+      });
+    }
+
+    section.addEventListener("mousemove", onMouseMove);
+    section.addEventListener("mouseleave", onMouseLeave);
+    return () => {
+      section.removeEventListener("mousemove", onMouseMove);
+      section.removeEventListener("mouseleave", onMouseLeave);
+    };
+  }, []);
+
+  // Main cinematic entrance timeline
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Collect all elements to animate
+    const els = {
+      badge: badgeRef.current,
+      line1: line1Ref.current,
+      line2: line2Ref.current,
+      line3: line3Ref.current,
+      subtext: subtextRef.current,
+      ctaButtons: ctasRef.current ? Array.from(ctasRef.current.querySelectorAll("a")) : [],
+      stats: statsRef.current,
+      cards: [card1Ref.current, card2Ref.current, card3Ref.current].filter(Boolean),
+      badge2: floatingBadgeRef.current,
+      scan: scanLineRef.current,
+    };
+
+    if (prefersReducedMotion) {
+      gsap.set(
+        [els.badge, els.line1, els.line2, els.line3, els.subtext,
+         ...els.ctaButtons, els.stats, els.badge2,
+         card1Ref.current, card2Ref.current, card3Ref.current],
+        { opacity: 1, y: 0, x: 0, scale: 1, clipPath: "inset(0 0 0% 0)" }
+      );
+      return;
+    }
+
+    // Set initial states via gsap.set (overrides inline style, Strict-Mode safe)
+    gsap.set(els.scan, { scaleX: 0, opacity: 0, transformOrigin: "left center" });
+    gsap.set(els.badge, { opacity: 0, scale: 0.75, y: 10 });
+    gsap.set([els.line1, els.line2, els.line3], { opacity: 0, y: 56, clipPath: "inset(0 0 100% 0)" });
+    gsap.set(els.subtext, { opacity: 0, y: 20 });
+    gsap.set(els.ctaButtons, { opacity: 0, y: 18, scale: 0.94 });
+    gsap.set(els.stats, { opacity: 0, y: 14 });
+    // card1 = phone shell, card2 = badge gauche, card3 = screen glow
+    gsap.set(card1Ref.current, { opacity: 0, y: 60, scale: 0.88, rotateX: 10 });
+    gsap.set(card2Ref.current, { opacity: 0, x: -28, scale: 0.78 });
+    gsap.set(card3Ref.current, { opacity: 0 });
+    gsap.set(els.badge2, { opacity: 0, x: 28, scale: 0.78 });
+
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-      // Badge entrance
-      tl.fromTo(
-        badgeRef.current,
-        { opacity: 0, y: 20, scale: 0.9 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.6 }
-      )
-        // Headline words stagger
-        .fromTo(
-          headlineRef.current,
-          { opacity: 0, y: 40, clipPath: "inset(0 0 100% 0)" },
-          { opacity: 1, y: 0, clipPath: "inset(0 0 0% 0)", duration: 0.7 },
-          "-=0.3"
-        )
-        // Subtext
-        .fromTo(
-          subtextRef.current,
-          { opacity: 0, y: 24 },
-          { opacity: 1, y: 0, duration: 0.6 },
-          "-=0.4"
-        )
-        // CTAs
-        .fromTo(
-          ctasRef.current,
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.5 },
-          "-=0.35"
-        )
-        // Stats — counter-up effect
-        .fromTo(
-          statsRef.current,
-          { opacity: 0, y: 16 },
-          { opacity: 1, y: 0, duration: 0.5 },
-          "-=0.25"
-        )
-        // Media grid — cascade from right
-        .fromTo(
-          mediaGridRef.current,
-          { opacity: 0, x: 50, scale: 0.95 },
-          { opacity: 1, x: 0, scale: 1, duration: 0.8, ease: "power2.out" },
-          "-=0.8"
-        );
+      // ── 0. Scan line sweep
+      tl.to(els.scan, { scaleX: 1, opacity: 0.6, duration: 0.28, ease: "power2.in" })
+        .to(els.scan, { opacity: 0, duration: 0.28, ease: "power2.out" })
 
-      // Floating badge — delayed float in
-      gsap.fromTo(
-        floatingBadgeRef.current,
-        { opacity: 0, x: -20, scale: 0.8 },
-        { opacity: 1, x: 0, scale: 1, duration: 0.6, delay: 1.2, ease: "back.out(1.5)" }
-      );
+      // ── 1. Badge entrance
+      .to(els.badge, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(2)" }, "-=0.1")
 
-      // Stat number counter animation
+      // ── 2-4. H1 lines — clip reveal staggered
+      .to(els.line1, { opacity: 1, y: 0, clipPath: "inset(0 0 0% 0)", duration: 0.72, ease: "power4.out" }, "-=0.15")
+      .to(els.line2, { opacity: 1, y: 0, clipPath: "inset(0 0 0% 0)", duration: 0.72, ease: "power4.out" }, "-=0.58")
+      .to(els.line3, { opacity: 1, y: 0, clipPath: "inset(0 0 0% 0)", duration: 0.72, ease: "power4.out" }, "-=0.58")
+
+      // ── 5. Subtext
+      .to(els.subtext, { opacity: 1, y: 0, duration: 0.6 }, "-=0.4")
+
+      // ── 6. CTAs staggered
+      .to(els.ctaButtons, { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.1, ease: "back.out(1.4)" }, "-=0.35")
+
+      // ── 7. Stats
+      .to(els.stats, { opacity: 1, y: 0, duration: 0.5 }, "-=0.3")
+
+      // ── 8. Phone — depth entrance (translateY + scale + rotateX perspective)
+      .to(card1Ref.current, {
+        opacity: 1, y: 0, scale: 1, rotateX: 0,
+        duration: 0.9,
+        ease: "power3.out",
+        transformPerspective: 1200,
+      }, "-=0.7")
+
+      // ── 9. Screen inner glow fade-in — delayed shimmer feel
+      .to(card3Ref.current, { opacity: 1, duration: 0.6, ease: "power2.out" }, "-=0.4")
+
+      // ── 10. Badge gauche — spring from left
+      .to(card2Ref.current, { opacity: 1, x: 0, scale: 1, duration: 0.7, ease: "elastic.out(1, 0.55)" }, "-=0.2")
+
+      // ── 11. Badge droite — spring from right
+      .to(els.badge2, { opacity: 1, x: 0, scale: 1, duration: 0.7, ease: "elastic.out(1, 0.55)" }, "-=0.5");
+
+      // ── Stat counter-up
       const statNumbers = statsRef.current?.querySelectorAll("[data-count]");
       statNumbers?.forEach((el) => {
         const target = parseFloat(el.getAttribute("data-count") || "0");
@@ -74,7 +169,7 @@ export default function HeroSection() {
         const suffix = el.getAttribute("data-suffix") || "";
         const obj = { value: 0 };
         gsap.to(obj, {
-          value: target, duration: 1.6, delay: 0.9, ease: "power2.out",
+          value: target, duration: 1.6, delay: 1.5, ease: "power2.out",
           onUpdate() {
             el.textContent = (isLt ? "< " : "") + Math.round(obj.value) + suffix;
           },
@@ -95,10 +190,27 @@ export default function HeroSection() {
       style={{ paddingTop: "var(--header-height, 90px)" }}
       id="marques"
     >
-      {/* Background glows */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/3 left-[-8%] w-[500px] h-[500px] rounded-full bg-[#6052ff]/6 blur-[100px]" />
-        <div className="absolute bottom-1/4 right-[-5%] w-[400px] h-[400px] rounded-full bg-[#6052ff]/4 blur-[80px]" />
+      {/* Scan line — cinematic boot effect, initial state set by gsap.set */}
+      <div
+        ref={scanLineRef}
+        aria-hidden="true"
+        className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-px bg-[#6052ff]/60 pointer-events-none z-20"
+      />
+
+      {/* Background glows — parallax via Lenis */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div
+          ref={glow1Ref}
+          className="absolute top-1/3 left-[-8%] w-[600px] h-[600px] rounded-full bg-[#6052ff]/7 blur-[120px]"
+          style={{ willChange: "transform" }}
+        />
+        <div
+          ref={glow2Ref}
+          className="absolute bottom-1/4 right-[-5%] w-[450px] h-[450px] rounded-full bg-[#6052ff]/4 blur-[90px]"
+          style={{ willChange: "transform" }}
+        />
+        {/* Static accent glow center-right */}
+        <div className="absolute top-1/2 right-1/3 w-[300px] h-[300px] rounded-full bg-[#6052ff]/3 blur-[80px]" />
       </div>
 
       <div className="max-w-7xl mx-auto px-6 w-full py-20">
@@ -108,34 +220,55 @@ export default function HeroSection() {
           <div className="flex flex-col gap-8">
 
             {/* Badge */}
-            <div ref={badgeRef} style={{ opacity: 0 }} className="inline-flex items-center gap-2.5 w-fit bg-[#6052ff]/10 border border-[#6052ff]/20 rounded-lg px-4 py-2">
+            <div
+              ref={badgeRef}
+              className="inline-flex items-center gap-2.5 w-fit bg-[#6052ff]/10 border border-[#6052ff]/20 rounded-lg px-4 py-2"
+            >
               <span className="w-1.5 h-1.5 rounded-full bg-[#6052ff] animate-float" />
               <span className="font-display text-[10px] font-700 tracking-[0.18em] text-[#6052ff] uppercase">
                 Agence UGC Artistique
               </span>
             </div>
 
-            {/* Headline */}
-            <div ref={headlineRef} style={{ opacity: 0 }}>
-              <h1 className="font-display font-800 text-4xl sm:text-5xl lg:text-[3.4rem] leading-[1.08] tracking-tight text-white">
-                Du contenu publicitaire{" "}
-                <span className="text-[#6052ff]">qui convertit.</span>{" "}
-                Produit par de vrais{" "}
-                <span className="text-[#6052ff]">artistes français.</span>{" "}
-                Livré en{" "}
-                <span className="text-[#6052ff]">moins d&apos;une semaine.</span>
-              </h1>
-            </div>
+            {/* Headline — split in 3 lines for staggered clip reveal */}
+            <h1 className="font-display font-800 text-4xl sm:text-5xl lg:text-[3.4rem] leading-[1.08] tracking-tight text-white flex flex-col gap-1">
+              <div ref={line1Ref} className="overflow-hidden">
+                <span className="block">
+                  Du contenu publicitaire{" "}
+                  <span className="text-[#6052ff]">qui convertit.</span>
+                </span>
+              </div>
+              <div ref={line2Ref} className="overflow-hidden">
+                <span className="block">
+                  Produit par de vrais{" "}
+                  <span className="text-[#6052ff]">artistes français.</span>
+                </span>
+              </div>
+              <div ref={line3Ref} className="overflow-hidden">
+                <span className="block">
+                  Livré en{" "}
+                  <span className="text-[#6052ff]">moins d&apos;une semaine.</span>
+                </span>
+              </div>
+            </h1>
 
             {/* Subtext */}
-            <p ref={subtextRef} style={{ opacity: 0 }} className="font-body text-[#9ca3af] text-lg leading-relaxed max-w-lg">
+            <p
+              ref={subtextRef}
+              className="font-body text-[#9ca3af] text-lg leading-relaxed max-w-lg"
+            >
               Stoppez la dépendance aux studios créa et aux influenceurs génériques.{" "}
               <span className="text-white font-600">InRealArt</span> connecte votre marque aux meilleurs artistes UGC français — sans frais mensuels, sans minimum d&apos;engagement.
             </p>
 
             {/* CTAs */}
-            <div ref={ctasRef} style={{ opacity: 0 }} className="flex flex-wrap items-center gap-4">
-              <a href="https://calendly.com/inrealart" target="_blank" rel="noopener noreferrer" className="btn-primary btn-primary-pulse">
+            <div ref={ctasRef} className="flex flex-wrap items-center gap-4">
+              <a
+                href="https://calendly.com/inrealart"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary btn-primary-pulse"
+              >
                 Obtenir un devis en 48h
               </a>
               <a href="#artistes" className="btn-outline">
@@ -144,9 +277,12 @@ export default function HeroSection() {
             </div>
 
             {/* Stats */}
-            <div ref={statsRef} style={{ opacity: 0 }} className="flex items-center gap-8 pt-2 border-t border-white/6">
+            <div
+              ref={statsRef}
+              className="flex items-center gap-8 pt-2 border-t border-white/6"
+            >
               <div className="flex flex-col pt-4">
-                <span className="font-display font-800 text-2xl text-white" data-count="50" data-suffix="+">50+</span>
+                <span className="font-display font-800 text-2xl text-white" data-count="50" data-suffix="+">0+</span>
                 <span className="font-body text-xs text-[#9ca3af] uppercase tracking-wider mt-1">Artistes vérifiés</span>
               </div>
               <div className="w-px h-10 bg-white/10" />
@@ -162,95 +298,217 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* ── Right: UGC media grid ── */}
-          <div ref={mediaGridRef} style={{ opacity: 0 }} className="relative">
-            <div className="grid grid-cols-2 gap-3 h-[480px] sm:h-[520px]">
+          {/* ── Right: Premium smartphone — mouse parallax wrapper ── */}
+          <div
+            ref={mediaGridRef}
+            className="relative flex items-center justify-center"
+            style={{ transformStyle: "preserve-3d", minHeight: "560px" }}
+          >
+            {/* Ambient glow behind the phone */}
+            <div
+              className="absolute pointer-events-none"
+              style={{
+                width: "420px",
+                height: "620px",
+                background: "radial-gradient(ellipse at 50% 60%, rgba(96,82,255,0.18) 0%, transparent 70%)",
+                filter: "blur(40px)",
+              }}
+            />
 
-              {/* Col 1 — tall card */}
+            {/* ── Phone shell ── */}
+            <div
+              ref={card1Ref}
+              className="relative w-[248px] h-[536px] lg:w-[310px] lg:h-[670px]"
+            >
+              {/* Outer glow ring */}
               <div
-                className="relative rounded-xl overflow-hidden group cursor-pointer border border-white/6 hover:border-[#6052ff]/30 transition-all duration-300"
-                style={{ background: "linear-gradient(160deg, #1e1540 0%, #131313 100%)" }}
+                className="absolute pointer-events-none"
+                style={{
+                  inset: "-12px",
+                  borderRadius: "52px",
+                  background: "radial-gradient(ellipse at 50% 0%, rgba(96,82,255,0.22) 0%, transparent 65%)",
+                  filter: "blur(16px)",
+                }}
+              />
+
+              {/* Phone frame */}
+              <div
+                className="absolute inset-0 rounded-[44px] border"
+                style={{
+                  borderColor: "rgba(255,255,255,0.14)",
+                  background: "linear-gradient(160deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)",
+                  boxShadow:
+                    "0 0 0 1px rgba(255,255,255,0.06) inset, 0 32px 80px rgba(0,0,0,0.7), 0 8px 24px rgba(0,0,0,0.5)",
+                }}
+              />
+
+              {/* Side buttons — right */}
+              <div
+                className="absolute right-0 rounded-r-full"
+                aria-hidden="true"
+                style={{
+                  top: "120px",
+                  width: "3px",
+                  height: "52px",
+                  background: "rgba(255,255,255,0.12)",
+                  transform: "translateX(2px)",
+                }}
+              />
+              <div
+                className="absolute right-0 rounded-r-full"
+                aria-hidden="true"
+                style={{
+                  top: "188px",
+                  width: "3px",
+                  height: "32px",
+                  background: "rgba(255,255,255,0.12)",
+                  transform: "translateX(2px)",
+                }}
+              />
+              {/* Side buttons — left */}
+              <div
+                className="absolute left-0 rounded-l-full"
+                aria-hidden="true"
+                style={{
+                  top: "140px",
+                  width: "3px",
+                  height: "40px",
+                  background: "rgba(255,255,255,0.10)",
+                  transform: "translateX(-2px)",
+                }}
+              />
+              <div
+                className="absolute left-0 rounded-l-full"
+                aria-hidden="true"
+                style={{
+                  top: "194px",
+                  width: "3px",
+                  height: "40px",
+                  background: "rgba(255,255,255,0.10)",
+                  transform: "translateX(-2px)",
+                }}
+              />
+
+              {/* Screen area */}
+              <div
+                className="absolute overflow-hidden"
+                style={{
+                  inset: "8px",
+                  borderRadius: "36px",
+                  background: "#000",
+                }}
               >
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-14 h-14 rounded-full bg-[#6052ff]/20 border border-[#6052ff]/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <svg className="w-6 h-6 text-[#6052ff] ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/40 backdrop-blur-sm rounded-md px-2.5 py-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                  <span className="font-display text-[9px] text-white/80 font-600 tracking-wider">LIVE</span>
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <p className="font-display text-xs font-700 text-white mb-0.5">Aujourd&apos;hui</p>
-                  <p className="font-body text-[10px] text-white/50">Aujourd&apos;hui est un grand jour</p>
-                </div>
-                {/* Purple accent bar */}
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#6052ff]/50" />
+                {/* Video */}
+                <video
+                  src="/videos/video_hero.mp4"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+
+                {/* Screen inner glow — top edge */}
+                <div
+                  ref={card3Ref}
+                  className="absolute inset-x-0 top-0 pointer-events-none"
+                  style={{
+                    height: "120px",
+                    background:
+                      "linear-gradient(to bottom, rgba(96,82,255,0.15) 0%, transparent 100%)",
+                  }}
+                />
+
+                {/* Dynamic island */}
+                <div
+                  className="absolute top-[14px] left-1/2 -translate-x-1/2 rounded-full bg-black z-10"
+                  style={{ width: "88px", height: "24px" }}
+                />
+
+                {/* Bottom gradient overlay */}
+                <div
+                  className="absolute inset-x-0 bottom-0 pointer-events-none"
+                  style={{
+                    height: "100px",
+                    background:
+                      "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%)",
+                  }}
+                />
               </div>
 
-              {/* Col 2 — two cards stacked */}
-              <div className="flex flex-col gap-3">
-                <div
-                  className="flex-1 relative rounded-xl overflow-hidden group cursor-pointer border border-white/6 hover:border-[#6052ff]/30 transition-all duration-300"
-                  style={{ background: "linear-gradient(160deg, #0e2016 0%, #131313 100%)" }}
-                >
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-11 h-11 rounded-full bg-white/10 border border-white/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      <svg className="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="absolute top-3 left-3">
-                    <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-md px-2 py-1">
-                      <div className="w-4 h-4 rounded-full bg-[#6052ff]" />
-                      <span className="font-display text-[9px] text-white/70 font-600">Van Guillemin</span>
-                    </div>
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#6052ff]/30" />
-                </div>
+              {/* Glass specular highlight — top-left diagonal streak */}
+              <div
+                className="absolute pointer-events-none"
+                style={{
+                  top: "12px",
+                  left: "18px",
+                  width: "80px",
+                  height: "2px",
+                  background:
+                    "linear-gradient(to right, transparent, rgba(255,255,255,0.22), transparent)",
+                  borderRadius: "2px",
+                  transform: "rotate(-8deg)",
+                }}
+              />
+            </div>
 
+            {/* ── Floating badge — "Artiste vérifié" — spring entrance ── */}
+            <div
+              ref={card2Ref}
+              className="absolute animate-float"
+              style={{ left: "-20px", bottom: "80px" }}
+            >
+              <div
+                className="flex items-center gap-3 rounded-2xl px-4 py-3 border"
+                style={{
+                  background: "rgba(18,17,17,0.85)",
+                  backdropFilter: "blur(16px)",
+                  borderColor: "rgba(96,82,255,0.25)",
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(96,82,255,0.1) inset",
+                }}
+              >
                 <div
-                  className="flex-1 relative rounded-xl overflow-hidden group cursor-pointer border border-white/6 hover:border-[#6052ff]/30 transition-all duration-300"
-                  style={{ background: "linear-gradient(160deg, #201808 0%, #131313 100%)" }}
+                  className="flex items-center justify-center rounded-xl"
+                  style={{ width: "32px", height: "32px", background: "rgba(96,82,255,0.15)" }}
                 >
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-11 h-11 rounded-full bg-[#6052ff]/20 border border-[#6052ff]/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      <svg className="w-4 h-4 text-[#6052ff] ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="absolute top-3 left-3">
-                    <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-md px-2 py-1">
-                      <div className="w-4 h-4 rounded-full bg-amber-500" />
-                      <span className="font-display text-[9px] text-white/70 font-600">Marine Tassou</span>
-                    </div>
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <p className="font-display text-[10px] text-white/70 font-700">Aujourd&apos;hui</p>
-                    <p className="font-body text-[9px] text-white/40">Aujourd&apos;hui est un grand jour</p>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#6052ff]/30" />
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#6052ff" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="font-display text-[10px] font-700 text-white leading-tight">Artiste vérifié</p>
+                  <p className="font-body text-[10px] text-[#9ca3af] leading-tight mt-0.5">Qualité garantie</p>
                 </div>
               </div>
             </div>
 
-            {/* Floating badge */}
-            <div ref={floatingBadgeRef} style={{ opacity: 0 }} className="absolute -left-4 bottom-16 bg-[#1d1c1c] border border-[#6052ff]/25 rounded-xl px-4 py-3 flex items-center gap-3 shadow-2xl animate-float">
-              <div className="w-8 h-8 rounded-lg bg-[#6052ff]/15 flex items-center justify-center">
-                <svg className="w-4 h-4 text-[#6052ff]" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                </svg>
-              </div>
-              <div>
-                <p className="font-display text-[10px] font-700 text-white">Artistes vérifiés</p>
-                <p className="font-body text-[10px] text-[#9ca3af]">Qualité garantie</p>
+            {/* ── Floating badge — livraison — spring entrance ── */}
+            <div
+              ref={floatingBadgeRef}
+              className="absolute animate-float"
+              style={{ right: "-16px", top: "110px", animationDelay: "0.8s" }}
+            >
+              <div
+                className="flex items-center gap-3 rounded-2xl px-4 py-3 border"
+                style={{
+                  background: "rgba(18,17,17,0.85)",
+                  backdropFilter: "blur(16px)",
+                  borderColor: "rgba(255,255,255,0.1)",
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+                }}
+              >
+                <div
+                  className="flex items-center justify-center rounded-xl"
+                  style={{ width: "32px", height: "32px", background: "rgba(255,255,255,0.06)" }}
+                >
+                  <svg className="w-4 h-4 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="font-display text-[10px] font-700 text-white leading-tight">Livraison express</p>
+                  <p className="font-body text-[10px] text-[#9ca3af] leading-tight mt-0.5">En moins d&apos;une semaine</p>
+                </div>
               </div>
             </div>
           </div>

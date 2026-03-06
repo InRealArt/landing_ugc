@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Unbounded, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
+import { SmoothScroll } from "@/components/SmoothScroll";
 
 // Chargement via next/font — auto-hébergé, pas de dépendance réseau Google Fonts
 const unbounded = Unbounded({
@@ -37,7 +38,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className={`${unbounded.variable} ${bricolage.variable}`}>
-      <body>{children}</body>
+      <body>
+        <SmoothScroll>{children}</SmoothScroll>
+      </body>
     </html>
   );
 }

@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
+import PhoneShowcase from "@/components/PhoneShowcase";
 import ArtConvertsSection from "@/components/ArtConvertsSection";
 import ClientsMarquee from "@/components/ClientsMarquee";
 import ArtistsGrid from "@/components/ArtistsGrid";
@@ -17,6 +18,7 @@ export default function HomePage() {
       <Navbar />
       <main>
         <HeroSection />
+        <PhoneShowcase />
         <ArtConvertsSection />
         <ClientsMarquee />
         <ArtistsGrid />

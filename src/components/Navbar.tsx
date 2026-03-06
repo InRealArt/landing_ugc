@@ -3,16 +3,30 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useLenis } from "./LenisContext";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const lenis = useLenis();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  function handleAnchor(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
+    // Only intercept same-page anchors
+    const hash = href.startsWith("/#") ? href.slice(1) : href.startsWith("#") ? href : null;
+    if (!hash || !lenis) return;
+    e.preventDefault();
+    const target = document.querySelector(hash);
+    if (target) {
+      lenis.scrollTo(target as HTMLElement, { offset: -90, duration: 1.4, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+    }
+    setMenuOpen(false);
+  }
 
   return (
     <header
@@ -49,6 +63,7 @@ export default function Navbar() {
             <a
               key={item.href}
               href={item.href}
+              onClick={(e) => handleAnchor(e, item.href)}
               className="font-display text-xs font-500 text-white/70 hover:text-[#6052ff] transition-colors duration-300 relative group"
             >
               {item.label}
@@ -59,7 +74,11 @@ export default function Navbar() {
 
         {/* CTA */}
         <div className="flex items-center gap-3">
-          <a href="/#contact" className="btn-primary btn-primary-pulse hidden sm:inline-flex">
+          <a
+            href="/#contact"
+            onClick={(e) => handleAnchor(e, "/#contact")}
+            className="btn-primary btn-primary-pulse hidden sm:inline-flex"
+          >
             Faire sa demande
           </a>
           {/* Mobile hamburger */}
@@ -87,12 +106,16 @@ export default function Navbar() {
               key={item.href}
               href={item.href}
               className="font-display text-sm text-white/70 hover:text-white transition-colors"
-              onClick={() => setMenuOpen(false)}
+              onClick={(e) => handleAnchor(e, item.href)}
             >
               {item.label}
             </a>
           ))}
-          <a href="/#contact" className="btn-primary w-full text-center mt-2">
+          <a
+            href="/#contact"
+            onClick={(e) => handleAnchor(e, "/#contact")}
+            className="btn-primary w-full text-center mt-2"
+          >
             Faire sa demande
           </a>
         </div>

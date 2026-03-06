@@ -33,7 +33,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth; — géré par Lenis */
 }
 
 body {
@@ -70,6 +70,26 @@ body {
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50%       { transform: translateY(-6px); }
+}
+@keyframes orbit-glow-pulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.18); }
+}
+@keyframes orbit-cw {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes orbit-ccw {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+
+/* Orbital partners — prefers-reduced-motion: pause */
+@media (prefers-reduced-motion: reduce) {
+  [style*="orbit-cw"],
+  [style*="orbit-ccw"] {
+    animation-play-state: paused !important;
+  }
 }
 
 .animate-fade-in-up  { animation: fadeInUp 0.65s ease both; }
