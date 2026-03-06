@@ -82,7 +82,7 @@ export default function PhoneShowcase() {
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top top",
-          end: "+=300%",
+          end: "+=100%",
           // scrub élevé = inertie forte, le mouvement colle au scroll avec retard physique
           scrub: 3,
           pin: stickyRef.current,
@@ -95,19 +95,19 @@ export default function PhoneShowcase() {
 
       // 0→0.72 : convergence principale — étirée sur 72% de la timeline
       // ease:"none" + scrub:3 = le mouvement EST le scroll, pas d'accélération propre
-      tl.to(handLeftRef.current,  { x: "-8%", y: "-4%", ease: "none", duration: 0.72 }, 0);
-      tl.to(handRightRef.current, { x: "8%",  y: "-4%", ease: "none", duration: 0.72 }, 0);
+      tl.to(handLeftRef.current,  { x: "-8%", y: "-4%", ease: "none", duration: 1.0 }, 0);
+      tl.to(handRightRef.current, { x: "8%",  y: "-4%", ease: "none", duration: 1.0 }, 0);
 
       // 0.45→0.72 : le glow apparaît seulement quand les mains sont proches
       tl.fromTo(
         glowRef.current,
         { opacity: 0, scale: 0.4 },
-        { opacity: 1, scale: 1.8, ease: "none", duration: 0.27 },
-        0.45
+        { opacity: 1, scale: 1.8, ease: "none", duration: 0.2 },
+        0.7
       );
 
-      // 0.72→1.0 : mains figées en position finale, glow se stabilise — pas de retrait
-      tl.to(glowRef.current, { scale: 1.4, opacity: 0.9, ease: "none", duration: 0.28 }, 0.72);
+      // 1.0→1.2 : glow se stabilise
+      tl.to(glowRef.current, { scale: 1.4, opacity: 0.9, ease: "none", duration: 0.2 }, 1.0);
 
     }, sectionRef);
 
@@ -118,7 +118,7 @@ export default function PhoneShowcase() {
     <section
       ref={sectionRef}
       className="relative bg-[#0d0d0d]"
-      style={{ height: "400vh" }}
+      style={{ height: "220vh" }}
     >
       {/* ── Sticky container — reste à l'écran pendant le pin ── */}
       <div ref={stickyRef} className="relative w-full h-screen overflow-hidden px-6">
