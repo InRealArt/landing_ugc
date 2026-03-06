@@ -73,7 +73,7 @@ export default function ArtConvertsSection() {
           trigger: sectionRef.current,
           start: "top top",
           end: "+=250%",
-          scrub: 1.2,
+          scrub: 2.5,
           pin: stickyRef.current,
           anticipatePin: 1,
         },
@@ -107,37 +107,37 @@ export default function ArtConvertsSection() {
         0.05
       )
 
-      // 0.3→0.65 : card gauche entre par la gauche
+      // 0.25→0.65 : card gauche entre par la gauche
       tl.to(
         card0Ref.current,
         {
           opacity: 1, x: 0, rotateY: 0,
-          ease: "power2.out",
-          duration: 0.35,
+          ease: "power1.out",
+          duration: 0.4,
         },
-        0.3
+        0.25
       )
 
-      // 0.35→0.70 : card centrale monte du bas
+      // 0.3→0.70 : card centrale monte du bas
       tl.to(
         card1Ref.current,
         {
           opacity: 1, y: 0, rotateX: 0, scale: 1,
-          ease: "power2.out",
-          duration: 0.35,
+          ease: "power1.out",
+          duration: 0.4,
         },
-        0.35
+        0.3
       )
 
-      // 0.4→0.75 : card droite entre par la droite
+      // 0.35→0.75 : card droite entre par la droite
       tl.to(
         card2Ref.current,
         {
           opacity: 1, x: 0, rotateY: 0,
-          ease: "power2.out",
-          duration: 0.35,
+          ease: "power1.out",
+          duration: 0.4,
         },
-        0.4
+        0.35
       )
 
       // 0.8→1 : légère remontée des cards ensemble (polish)
